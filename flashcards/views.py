@@ -28,9 +28,13 @@ def box_view(request, box_number):
             {"card": None, "box_number": box_number},
         )
 
-    card = cards.order_by("?").first()
-
     if request.method == "POST":
+        card_id = request.POST.get("card_id")
+        card = get_object_or_404(
+            Flashcard,
+            id=card_id,
+            box=box_number,
+        )
         action = request.POST.get("action")
         if action == "promote":
             card.box = min(card.box + 1, 5)
@@ -38,6 +42,8 @@ def box_view(request, box_number):
             card.box = max(card.box - 1, 1)
         card.save()
         return redirect("box_view", box_number=box_number)
+
+    card = cards.order_by("?").first()
 
     return render(
         request,
